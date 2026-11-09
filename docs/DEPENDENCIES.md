@@ -29,3 +29,6 @@ No complete CVE, Rust/runtime SBOM or legal certification is claimed.
 中文：技能不随包安装框架、模型、解释器或容器镜像。现有辅助脚本仅使用 Python 标准库。
 第三方选型需要在实际采用前核验版本、依赖、许可和分发义务。主项目的运行验收与预算
 不会因为安装技能而自动继承。当前不是完整安全/法律认证。
+
+Hosted checks pin Ubuntu24.04 with Python3.13.3; ubuntu-latest changed to Ubuntu26.04
+without that exact Python artifact. No runtime/action version was silently upgraded.
