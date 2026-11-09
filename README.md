@@ -14,7 +14,7 @@ The technical idea is simple: **AI should explore how to solve a problem, not on
 execute a workflow designed by a person.** Rules, scripts, ML, prompts, workflows
 and agents are alternatives. A small program is allowed to beat a complex agent.
 
-**v0.1.0 preview.** This is an agent skill with tested evidence/install/package
+**v0.1.1 preview.** This is an agent skill with tested evidence/install/package
 helpers, not a standalone autonomous engine, sandbox or model service. Task quality
 still depends on the agent, available resources and valid evaluation. Framework
 selection guidance is not a claim of implemented LangGraph/Dify integrations.

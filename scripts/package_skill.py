@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SKILL = ROOT / 'skills/solve2ship'
 FILES = ('SKILL.md', 'LICENSE', 'NOTICE', 'INSTALL.md', 'agents/openai.yaml', 'references/execution.md',
          'references/adapters.md', 'references/evaluation.md', 'references/delivery.md', 'scripts/evidence.py')
-VERSION = '0.1.0'
+VERSION = '0.1.1'
 
 
 def build(destination):
@@ -33,5 +33,5 @@ def build(destination):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(); parser.add_argument('--output', type=Path, default=ROOT / 'dist/solve2ship-skill-v0.1.0.zip')
+    parser = argparse.ArgumentParser(); parser.add_argument('--output', type=Path, default=ROOT / 'dist/solve2ship-skill-v0.1.1.zip')
     print(json.dumps(build(parser.parse_args().output)))
