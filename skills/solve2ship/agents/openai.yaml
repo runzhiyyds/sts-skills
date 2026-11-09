@@ -1,0 +1,4 @@
+interface:
+  display_name: "Solve2Ship"
+  short_description: "Build, compare and ship solutions from your goal"
+  default_prompt: "Use $solve2ship to turn my goal and examples into an evaluated solution I can use locally."

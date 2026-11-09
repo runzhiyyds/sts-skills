@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use this skill, cite the software project. No research novelty claim is implied."
+type: software
+title: "Solve2Ship Skills: From Goals to Working AI Solutions"
+authors:
+  - family-names: "Guo"
+    given-names: "Chenyuan"
+version: 0.1.0
+date-released: 2026-11-09
+license: Apache-2.0
+repository-code: "https://github.com/runzhiyyds/sts-skills"
+url: "https://github.com/runzhiyyds/sts-skills"
+keywords:
+  - Goal-to-Service
+  - autonomous AI engineering
+  - agent skills
+  - cross-paradigm solution search
+  - eval-driven optimization
