@@ -11,7 +11,7 @@
 核心思想：**AI 应该能探索解决问题的技术路径，而不只是执行人类设计好的 Workflow。**
 规则、脚本、ML、Prompt、工作流和 Agent 都是可选方案；简单程序也可以胜过复杂 Agent。
 
-**v0.1.1 预览。** 当前交付的是技能指令和经过测试的证据/安装/打包辅助工具，不是另一个
+**v0.2.0 预览。** 当前交付的是技能指令和经过测试的证据/安装/打包辅助工具，不是另一个
 自治引擎、模型或隔离执行环境。实际质量取决于 Agent、资源与评价证据。LangGraph、Dify
 等内容是选型指引，不代表已经完成这些平台的运行适配。
 
@@ -29,6 +29,13 @@
 可先用[客服留言分类示例](docs/EXAMPLE.md)和[20 条无标签合成输入](examples/customer-routing.json)
 试用。示例提供零付费、本地运行的自然语言请求和真实前向测试摘要，并明确保留质量
 复核门禁。
+
+如果本机已经运行 STS，已附带的[无前端连接工具](docs/HEADLESS.md)可让 Agent 直接使用
+真实任务、探索、复核和交付接口。默认仅查看，不自动安装引擎或创建模型预算；完整复核
+和就绪检查使用 STS v0.14，v0.13 可只读查看。
+v0.2 安装 ZIP 已在两个仓库之外连接真实本机 STS v0.14，验证中文状态、4 条已关闭的
+最终复核材料，以及已验收规则服务的下载与 SHA256 一致性。连接工具没有调用模型、
+提交复核判断或执行下载包。
 
 ## 安装
 
@@ -57,9 +64,11 @@ python3 scripts/install_skill.py --agent codex
 
 技能要求区分用户标签、可执行检查、未校准模型裁判和人工反馈；最终测试数据不能回流
 优化。生成代码和模型加载必须在合适的隔离环境里运行，没有宿主执行兜底。密钥和数据
-留在本地，未知费用继续预留，失败或费用不明的请求不自动重试。
+不进入公开分发包；获得授权的任务数据可能发给已配置的模型服务。未知费用继续预留，
+失败或费用不明的请求不自动重试。
 
 - [技能入口](skills/solve2ship/SKILL.md)
+- [无前端 STS 连接](docs/HEADLESS.md)
 - [权限与隔离](skills/solve2ship/references/execution.md)
 - [方案选择](skills/solve2ship/references/adapters.md)
 - [评价与证据](skills/solve2ship/references/evaluation.md)
@@ -68,7 +77,8 @@ python3 scripts/install_skill.py --agent codex
 
 运行 `python3 -m unittest discover -s tests -v` 验证辅助工具，执行
 `python3 scripts/package_skill.py` 生成安装 ZIP。这些测试不能冒充真实业务准确率或优化
-收益。生产托管、公开部署、外部下载和费用需要各自的授权与真实验收。
+收益。v0.2 已通过 31 项标准库测试，其中 20 项为本机 HTTP 桥接协议测试。
+生产托管、公开部署、外部下载和费用需要各自的授权与真实验收。
 
 ## 许可与引用
 

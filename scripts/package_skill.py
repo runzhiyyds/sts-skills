@@ -9,8 +9,9 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[1]
 SKILL = ROOT / 'skills/solve2ship'
 FILES = ('SKILL.md', 'LICENSE', 'NOTICE', 'INSTALL.md', 'agents/openai.yaml', 'references/execution.md',
-         'references/adapters.md', 'references/evaluation.md', 'references/delivery.md', 'scripts/evidence.py')
-VERSION = '0.1.1'
+         'references/adapters.md', 'references/evaluation.md', 'references/delivery.md', 'references/sts-engine.md',
+         'scripts/evidence.py', 'scripts/sts_bridge.py')
+VERSION = '0.2.0'
 
 
 def build(destination):
@@ -33,5 +34,5 @@ def build(destination):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(); parser.add_argument('--output', type=Path, default=ROOT / 'dist/solve2ship-skill-v0.1.1.zip')
+    parser = argparse.ArgumentParser(); parser.add_argument('--output', type=Path, default=ROOT / ('dist/solve2ship-skill-v' + VERSION + '.zip'))
     print(json.dumps(build(parser.parse_args().output)))

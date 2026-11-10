@@ -14,7 +14,7 @@ The technical idea is simple: **AI should explore how to solve a problem, not on
 execute a workflow designed by a person.** Rules, scripts, ML, prompts, workflows
 and agents are alternatives. A small program is allowed to beat a complex agent.
 
-**v0.1.1 preview.** This is an agent skill with tested evidence/install/package
+**v0.2.0 preview.** This is an agent skill with tested evidence/install/package
 helpers, not a standalone autonomous engine, sandbox or model service. Task quality
 still depends on the agent, available resources and valid evaluation. Framework
 selection guidance is not a claim of implemented LangGraph/Dify integrations.
@@ -35,6 +35,15 @@ runtime is missing. It cannot grant itself API access, cloud rights or a budget.
 Try the [customer-routing example](docs/EXAMPLE.md) with [20 unlabeled synthetic
 messages](examples/customer-routing.json). It includes a zero-paid local request and
 an honest forward-test summary, with quality review still required.
+
+Already have STS running locally? The packaged [headless bridge](docs/HEADLESS.md)
+lets your agent use its actual task/search/review/delivery APIs without opening a
+frontend. It is read-only by default and never creates a model budget or installs
+an engine. Full review/readiness commands target STS v0.14; v0.13 remains read-only.
+The v0.2 install ZIP was checked outside both repositories against a real local
+STS v0.14 engine: Chinese status, four closed final-review cases and an accepted
+Rules service download with a matching SHA256. The bridge made no model calls,
+submitted no review votes and did not execute the downloaded service.
 
 ## Install
 
@@ -75,12 +84,14 @@ flowchart LR
 The skill keeps evidence sources separate: provided labels, executable checks,
 uncalibrated model judges and human feedback. Final holdouts are not reused for
 optimization. Generated code/model loading requires suitable isolation; no host
-execution fallback. Keys and datasets stay local. Unknown charges remain reserved,
+execution fallback. Keys and private datasets stay out of source distributions;
+authorized task data may be sent to the configured model provider. Unknown charges remain reserved,
 and failed/ambiguous paid operations are never automatically replayed.
 
 ## Documentation
 
 - [Skill workflow](skills/solve2ship/SKILL.md)
+- [Headless STS bridge](docs/HEADLESS.md)
 - [Resources and isolation](skills/solve2ship/references/execution.md)
 - [Approach selection](skills/solve2ship/references/adapters.md)
 - [Evaluation and durable evidence](skills/solve2ship/references/evaluation.md)
@@ -95,7 +106,8 @@ python3 -m unittest discover -s tests -v
 python3 scripts/package_skill.py
 ```
 
-These tests exercise helpers and packaging. They do not establish task accuracy,
+The v0.2 suite passes 31 stdlib tests, including 20 local HTTP protocol tests for
+the bridge. These exercise helpers and packaging. They do not establish task accuracy,
 general optimization gains or production security. Public/production hosting,
 framework/model downloads and external fees require separate authorization and real
 acceptance. See the [STS engine](https://github.com/runzhiyyds/solve2ship) for its own

@@ -25,6 +25,12 @@ Before paid/external calls or generated-code execution, read
 missing, explain what the user must do in plain language and continue unaffected
 work. A model subscription does not imply permission or funds for new API calls.
 
+If a trusted local STS engine is already available, use the optional
+[headless engine bridge](references/sts-engine.md) to inspect resources, create a
+reviewed task, submit explicitly authorized exploration, record the user's actual
+feedback and retrieve an accepted service. It needs no frontend. Do not install an
+engine or grant a budget silently; other approved local paths remain valid.
+
 ## Let approaches compete
 
 Propose several meaningfully different plausible approaches before committing. Start

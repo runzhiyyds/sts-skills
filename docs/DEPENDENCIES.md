@@ -18,6 +18,8 @@ The initial STS implementation reference is v0.12.0, commit
 `dfc52c17d88f1eb6247fa36a085aa09aa1914183`, at
 https://github.com/runzhiyyds/solve2ship . This skill can guide other local agents
 without installing that engine; its runtime acceptance and model budget are separate.
+The v0.2 optional bridge targets the STS v0.14 review/readiness protocol rather than
+expanding the older v0.12 framework scope. v0.13 compatibility is read-only.
 
 CI uses the same pinned actions already reviewed in that STS snapshot:
 actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 (v4.2.2, MIT), and
@@ -32,3 +34,10 @@ No complete CVE, Rust/runtime SBOM or legal certification is claimed.
 
 Hosted checks pin Ubuntu24.04 with Python3.13.3; ubuntu-latest changed to Ubuntu26.04
 without that exact Python artifact. No runtime/action version was silently upgraded.
+
+
+The optional headless bridge is STS-authored stdlib HTTP/SQLite client code, with no
+framework dependency or STS source bundled. It connects only to an existing HTTP
+loopback engine, has no model-profile/key reader and executes no candidate code.
+Owner-only mutation journals use POSIX file ownership/no-follow protections; read-only
+HTTP use is portable, but other private-storage platforms need their own review.

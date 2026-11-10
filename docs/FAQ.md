@@ -20,8 +20,8 @@ integrations. Prefer a simpler solution when the actual evidence supports it.
 real budgets and uncertain evidence. Small synthetic cases and judge scores are not
 verified business accuracy. The evaluator itself may need human calibration.
 
-**What can I use immediately?** The skill, installer, deterministic package builder
-and durable evidence helper. These are tested utilities, not proof of autonomous
+**What can I use immediately?** The skill, installer, deterministic package builder,
+durable evidence helper and optional [headless STS bridge](HEADLESS.md). These are tested utilities, not proof of autonomous
 success on every business problem. Task-specific services require actual construction
 and independent startup/contract checks in the user's environment.
 
@@ -35,3 +35,13 @@ outside distributable bundles. Public research artifacts require consent and rev
 执行环境，也不能保证“全局最优”。辅助脚本已做协议测试；具体业务服务必须真正构建和
 独立验证。没有可信标签时应说明评价的不确定性，不能把模型评分当真实准确率。密钥、
 客户数据、数据库与开发日志不进入公开仓库。
+
+
+**Can my agent use STS without its webpage?** Yes, when the local engine is already
+installed/configured. The packaged bridge uses real loopback APIs with no browser.
+It can inspect, preview/save, explicitly start/cancel, exchange actual operator review
+files and download an accepted service archive. It does not secretly set up resources,
+start paid work by default or manufacture operator attestations. See [headless use](HEADLESS.md).
+
+中文：已有本机 STS 时，Agent 可通过附带工具直接调用真实接口，无需打开页面。工具
+默认只读，付费探索必须明确启动且已有额度；复核仅能记录用户真实判断，不自动认可。
