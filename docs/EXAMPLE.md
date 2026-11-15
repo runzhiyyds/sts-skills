@@ -25,11 +25,12 @@ For a host that supports `$solve2ship`, that explicit name can invoke the skill.
 Other hosts use their own skill-loading mechanism. You do not need to select a
 framework or design a workflow. If safe execution is unavailable, the agent should
 explain the smallest setup step and preserve progress; installing the skill alone
-does not supply Docker, a model subscription or an API budget.
+does not supply a container runtime, a model subscription or an API budget.
 
 支持 `$solve2ship` 的宿主可以用这个名称调用；其他宿主按自己的技能加载方式使用。
 你不必选择技术框架或设计工作流。没有合适的安全执行环境时，Agent 应说明最少需要
-怎样配合并保留进度；技能本身不会安装 Docker、赠送模型额度或取得云权限。
+怎样配合并保留进度；技能本身不会安装容器运行环境、赠送模型额度或取得云权限。需要
+本机隔离环境时，请参考[容器运行环境设置](RUNTIME.md)。
 
 ## Observed forward test / 已观察到的前向测试
 

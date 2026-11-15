@@ -1,15 +1,17 @@
 # Dependencies and provenance / 依赖与来源
 
 This package uses Python 3.10+ standard-library helpers and Markdown instructions.
-No third-party package, framework source, model weight, interpreter binary or Docker
-image is bundled. Installed CPython/SQLite and agent hosts retain their own licenses.
+No third-party package, framework source, model weight, interpreter binary or container
+image is bundled. Installed CPython/SQLite, container engines and agent hosts retain
+their own licenses.
 
 Own source: Apache-2.0, Copyright 2026 郭辰远 (Chenyuan Guo). LICENSE is the same
 owner-approved Apache-2.0 text used by the Solve2Ship source project. NOTICE preserves
 attribution. Skill instructions implement the user-confirmed Solve2Ship principles;
 they do not copy framework tutorials or claim a new published algorithm.
 
-References to LangGraph, Dify, AutoML, agents or Docker are selection guidance.
+References to LangGraph, Dify, AutoML, agents or container engines are selection
+guidance. For the current local setup choices, see [runtime setup](RUNTIME.md).
 Adoption requires current version/source/license/dependency/redistribution review;
 no executable integrations with those projects are bundled here. An unmodified
 upstream component's license must not be replaced with the STS license.

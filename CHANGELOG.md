@@ -1,5 +1,16 @@
 # Changelog / 版本变动
 
+## Unreleased / 未发布
+
+Documented container-runtime-agnostic local setup: Colima with the Docker CLI and
+Compose on macOS, Docker Engine with Compose on Linux, and links to the versioned STS
+usage, architecture and dependency records. Existing pricing, budgets and runtime
+images are unchanged.
+
+补充与容器运行环境无关的本机设置说明：macOS 使用 Colima、Docker CLI 和 Compose，Linux
+使用 Docker Engine 和 Compose，并链接到 STS 版本化的使用、架构及依赖记录。现有价格、
+预算和运行时镜像均未改变。
+
 ## v0.2.0 — 2026-11-10
 
 Optional headless STS client: private operation receipts, explicit exploration,

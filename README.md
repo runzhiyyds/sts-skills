@@ -91,6 +91,7 @@ and failed/ambiguous paid operations are never automatically replayed.
 ## Documentation
 
 - [Skill workflow](skills/solve2ship/SKILL.md)
+- [Local container runtime setup](docs/RUNTIME.md) (Colima on macOS or Docker Engine on Linux)
 - [Headless STS bridge](docs/HEADLESS.md)
 - [Resources and isolation](skills/solve2ship/references/execution.md)
 - [Approach selection](skills/solve2ship/references/adapters.md)

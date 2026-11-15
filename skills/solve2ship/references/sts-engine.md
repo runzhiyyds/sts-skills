@@ -29,8 +29,10 @@ owner-only without overwriting existing files. Treat this as private user data,
 not automatically safe public material. Redaction is not a complete secret audit.
 
 Model readiness means configured, not a successful network connection or current
-price review. STS enforces its actual provider/date/budget/runtime gates. Docker is
-required only by appropriate code/ML/workflow/tool families, not every simple route.
+price review. STS enforces its actual provider/date/budget/runtime gates. A local
+Docker Engine-compatible runtime is required only by appropriate code/ML/workflow/tool
+families, not every simple route. See the [local runtime setup](https://github.com/runzhiyyds/sts-skills/blob/main/docs/RUNTIME.md)
+for Colima on macOS, Docker Engine on Linux and Compose/STS links.
 
 ## Save a reviewed task without launching paid work
 

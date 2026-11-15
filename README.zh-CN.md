@@ -24,7 +24,8 @@
 
 提供输入样本和一段期望即可，逐条标签可选。Agent 应先检查已有资源，只询问影响结果
 的必要信息；技术细节由它处理。需要额外额度、凭据或安全执行环境时，会解释原因和
-最小配合步骤。安装技能不会自动获得模型 API、Docker、云权限或付费预算。
+最小配合步骤。安装技能不会自动获得模型 API、容器运行环境（例如 macOS 的 Colima
+或 Linux 的 Docker Engine）、云权限或付费预算。
 
 可先用[客服留言分类示例](docs/EXAMPLE.md)和[20 条无标签合成输入](examples/customer-routing.json)
 试用。示例提供零付费、本地运行的自然语言请求和真实前向测试摘要，并明确保留质量
@@ -68,6 +69,7 @@ python3 scripts/install_skill.py --agent codex
 失败或费用不明的请求不自动重试。
 
 - [技能入口](skills/solve2ship/SKILL.md)
+- [本地容器运行环境](docs/RUNTIME.md)（macOS 使用 Colima，Linux 使用 Docker Engine）
 - [无前端 STS 连接](docs/HEADLESS.md)
 - [权限与隔离](skills/solve2ship/references/execution.md)
 - [方案选择](skills/solve2ship/references/adapters.md)
