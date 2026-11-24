@@ -45,3 +45,23 @@ start paid work by default or manufacture operator attestations. See [headless u
 
 中文：已有本机 STS 时，Agent 可通过附带工具直接调用真实接口，无需打开页面。工具
 默认只读，付费探索必须明确启动且已有额度；复核仅能记录用户真实判断，不自动认可。
+
+**Why does it stop with an API key and money still available?** A model connection,
+budget and price review are separate requirements. The v0.3 bridge requires model-bound
+`pricing.ready` from STS v0.16+ before new paid submissions. If the review expires,
+inspect current official prices and explicitly import the reviewed version locally.
+The bridge does not renew it or reset historical usage. Read-only work and cached
+successful receipts remain available. See [price review](../skills/solve2ship/references/pricing.md).
+
+中文：有密钥和余额不代表价格审核仍有效。新付费操作需 STS v0.16+ 返回模型绑定价格
+已就绪；过期后先核对当前官方价格并明确导入。工具不会自动续期或清空历史费用，
+只读工作和已有成功回执仍可继续。
+
+**Does it need Docker Desktop?** No. The documented STS paths use Colima with Docker
+Engine/CLI on Apple Silicon macOS, or Docker Engine on Linux. Compose is available
+for projects that supply a Compose stack; it is not the candidate sandbox. Actual
+STS isolation acceptance is required before running generated code. See [runtime setup](RUNTIME.md).
+
+中文：不需要 Docker Desktop。Apple Silicon macOS 可用 Colima + Docker Engine/CLI，
+Linux 可用 Docker Engine；安装 Compose 不等于隔离验收。生成代码仍需通过 STS 的
+实际隔离检查后才能运行。

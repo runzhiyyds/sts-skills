@@ -1,6 +1,18 @@
 # Changelog / 版本变动
 
-## Unreleased / 未发布
+## v0.3.0 — 2026-11-24
+
+New paid-capable bridge commands check the model-bound STS v0.16 price version before
+submission. Missing, expired, future, mismatched and inconsistent readiness fails
+closed; no price import/renewal, authorization or ledger mutation is performed by
+the bridge. Read-only commands, deterministic final review, cancellation and saved
+successful receipts remain usable without new paid calls. Added bilingual reasons,
+an installed price-review guide and six protocol tests.
+
+新的付费相关命令会在提交前核对 STS v0.16 返回的模型绑定价格版本；价格缺失、过期、
+未生效、不匹配或状态不一致时停止。连接工具不导入/续期价格，不创建预算或修改费用
+账本。只读、确定性最终复核、取消与历史成功回执无需新付费调用。增加双语原因、
+随安装包分发的价格复核指引和六项协议测试。
 
 Documented container-runtime-agnostic local setup: Colima with the Docker CLI and
 Compose on macOS, Docker Engine with Compose on Linux, and links to the versioned STS

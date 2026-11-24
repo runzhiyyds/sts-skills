@@ -4,8 +4,10 @@ Use this path only when the user has an installed, trusted STS engine running on
 this machine. The skill does not install/start the engine, grant a budget or bring
 its own model/runtime. Without that resource, continue with other approved local
 capabilities or explain what is missing. No frontend is required for this bridge.
-The current API compatibility target is STS v0.14+; v0.13 supports read-only status
-but lacks the safe model-readiness/review routes. Verify the actual engine response.
+New paid operations target the STS v0.16+ model-bound pricing API. Older engines
+remain available for supported read-only operations, but absent price readiness
+blocks paid submission. Verify actual response fields rather than trusting a version
+label. Existing review/download commands still need the v0.14 review routes.
 
 Run `scripts/sts_bridge.py --help` from this installed skill directory. It uses only
 Python 3.10+ stdlib. URLs are restricted to HTTP loopback, localhost is normalized to
@@ -28,8 +30,13 @@ raw samples, generated program text and observed outputs. Explicit `show
 owner-only without overwriting existing files. Treat this as private user data,
 not automatically safe public material. Redaction is not a complete secret audit.
 
-Model readiness means configured, not a successful network connection or current
-price review. STS enforces its actual provider/date/budget/runtime gates. A local
+Status reports model configuration, budget and price readiness separately. It exposes
+the active price version and UTC window from `/api/model-status`, without reading
+model keys or private price files. `pricing.ready` must be exactly true with a coherent
+version snapshot before new paid work. Missing, expired, mismatched or malformed
+reviews block submission before the operation journal is claimed. A later price
+change can still be refused by the engine at reservation. Read [price reviews](pricing.md)
+to resolve it; no network connection or provider invoice is certified by status. A local
 Docker Engine-compatible runtime is required only by appropriate code/ML/workflow/tool
 families, not every simple route. See the [local runtime setup](https://github.com/runzhiyyds/sts-skills/blob/main/docs/RUNTIME.md)
 for Colima on macOS, Docker Engine on Linux and Compose/STS links.
@@ -87,7 +94,7 @@ before exploration. Do not silently install or grant those resources.
 
 ## Explicit exploration and recovery
 
-Only with existing model configuration, positive remaining engine authorization,
+Only with existing model configuration, a ready model-bound price version, positive remaining engine authorization,
 a task budget that allows work, and user-authorized API use:
 
     python3 scripts/sts_bridge.py start --task-id TASK_ID --revision 1 --operation-id explore-1 --allow-paid

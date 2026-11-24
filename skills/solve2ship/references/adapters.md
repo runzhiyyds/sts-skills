@@ -20,7 +20,8 @@ The separate [STS engine](https://github.com/runzhiyyds/solve2ship) offers an ex
 local competition/evidence path. This skill is not a bundled engine or a claim that
 LangGraph/Dify integrations have been implemented. Consult the engine's current
 supported scope before using it. v0.12.0 was the initial guidance snapshot; the
-optional [headless bridge](sts-engine.md) now targets the STS v0.14 review/readiness
-API, with read-only compatibility for v0.13. This does not expand the engine's
+optional [headless bridge](sts-engine.md) requires STS v0.16 model-bound pricing
+readiness for new paid work and uses the v0.14 review/download routes. Older supported
+read-only routes remain usable. This does not expand the engine's
 implemented framework families. Do not couple the delivered service to an
 experiment controller/database.

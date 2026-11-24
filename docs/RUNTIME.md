@@ -7,7 +7,7 @@ Docker Engine-compatible API endpoint. A desktop bundle is not required.
 
 Choose the setup that matches your host:
 
-## macOS with Colima
+## Apple Silicon macOS with Colima
 
 Install the Docker CLI, the Compose plugin, and Colima using the package manager you
 already trust. With Homebrew, the packages are:
@@ -19,6 +19,12 @@ docker context use colima
 docker info
 docker compose version
 ```
+
+Verify `command -v docker` resolves to the independently installed CLI, and that
+`docker context show` returns the intended Colima context. The Engine runs inside
+Colima's Linux VM. Docker Desktop.app is not required; retain Colima, the CLI and
+Compose if removing Desktop. Data inside a former Desktop VM is separate and does
+not automatically migrate to Colima.
 
 The `colima` context keeps the Engine endpoint local to the machine. Stop it when
 you are finished with local work:
@@ -52,26 +58,27 @@ package and service steps on your distribution.
 
 ## Compose and STS
 
-Compose is the local coordination layer for a multi-service setup; it does not
-replace the isolated candidate runtime. From the directory containing the reviewed
-STS Compose file, validate the rendered configuration and keep listeners on loopback
-unless you have separately authorized a deployment:
-
-```sh
-docker compose config
-docker compose up -d
-docker compose ps
-```
+Compose can coordinate a multi-service deployment when that project supplies a
+reviewed Compose file. STS v0.16 source does not bundle a Compose application stack:
+start its local engine with the documented Python/Make commands. Installing Compose
+does not replace the candidate sandbox or its acceptance checks.
 
 Follow the STS repository's versioned [local usage guide](https://github.com/runzhiyyds/solve2ship/blob/main/docs/USAGE.md)
-for engine startup and service commands. The [STS architecture guide](https://github.com/runzhiyyds/solve2ship/blob/main/docs/ARCHITECTURE.md)
-describes the control-plane/runtime boundary and the [dependency record](https://github.com/runzhiyyds/solve2ship/blob/main/docs/THIRD_PARTY_DEPENDENCIES.md)
+for engine startup and service commands. The [STS architecture guide](https://github.com/runzhiyyds/solve2ship/blob/main/docs/PRODUCT_ARCHITECTURE.md)
+describes the control-plane/runtime boundary and the [dependency record](https://github.com/runzhiyyds/solve2ship/blob/main/docs/DEPENDENCIES.md)
 records the reviewed versions and license duties.
 
-If `docker info` or `docker compose version` fails, pause execution that needs
-isolation and preserve the task. The skill can still inspect inputs, prepare a task
-contract and explain the missing setup; it must not execute generated code on the
-host or silently install an engine.
+The STS adapter follows Docker CLI context/host configuration and accepts local Unix
+sockets. Changing Engine or context requires the STS isolation acceptance checks
+again. macOS Colima has recorded STS acceptance; the Linux Engine contract is
+documented, with host-specific verification still required.
+
+If `docker info` or the STS isolation acceptance checks fail, pause execution that
+needs isolation and preserve the task. A missing Compose plugin blocks only a
+project that actually requires a Compose stack; it does not block the STS Engine
+adapter by itself. The skill can still inspect inputs, prepare a task contract and
+explain the missing setup; it must not execute generated code on the host or silently
+install an engine.
 
 ## 简体中文
 
@@ -79,7 +86,7 @@ Solve2Ship Skills 不会安装或启动容器引擎。生成代码和加载模�
 环境中运行，不能退回到宿主进程执行。当前 STS 本机适配器使用本机
 Docker Engine 兼容 API；不依赖桌面应用。
 
-macOS 可使用 Colima、Docker CLI 和 Compose 插件：
+Apple Silicon macOS 可使用 Colima、Docker CLI 和 Compose 插件：
 
 ```sh
 brew install colima docker docker-compose
@@ -97,9 +104,18 @@ docker info
 docker compose version
 ```
 
-Compose 用于协调本机多服务，不代替候选方案的隔离运行环境。STS 的版本化启动命令请看
+确认 `command -v docker` 指向独立安装的 CLI，`docker context show` 为 Colima 上下文。
+Docker Engine 在 Colima 的 Linux 虚拟机中运行。STS 不需要 Docker Desktop.app；卸载
+Desktop 时保留 Colima、CLI 和 Compose。旧 Desktop 虚拟机中的数据不会自动迁移。
+
+Compose 可用于有经审核 Compose 文件的多服务项目；STS v0.16 未附带 Compose 应用栈，
+本机引擎仍按文档使用 Python/Make 启动。Compose 不代替候选方案的隔离验收。
+STS 的版本化启动命令请看
 [本机使用说明](https://github.com/runzhiyyds/solve2ship/blob/main/docs/USAGE.md)；运行边界和
-依赖许可请看 [架构说明](https://github.com/runzhiyyds/solve2ship/blob/main/docs/ARCHITECTURE.md)
-与[依赖记录](https://github.com/runzhiyyds/solve2ship/blob/main/docs/THIRD_PARTY_DEPENDENCIES.md)。
-如果检查失败，应暂停需要隔离环境的执行并保留进度，不能在宿主机运行生成代码，也不能
-偷偷安装引擎。
+依赖许可请看 [架构说明](https://github.com/runzhiyyds/solve2ship/blob/main/docs/PRODUCT_ARCHITECTURE.md)
+与[依赖记录](https://github.com/runzhiyyds/solve2ship/blob/main/docs/DEPENDENCIES.md)。
+切换 Engine 或上下文后须重新执行 STS 隔离检查。已有 Colima 本机验收记录，Linux
+遵循相同的本地 Unix 套接字协议，但具体主机仍需实际验证。
+如果 Docker Engine 或 STS 隔离验收失败，应暂停需要隔离环境的执行并保留进度。
+缺少 Compose 只影响实际依赖 Compose 栈的项目，不会单独阻断 STS Engine 适配器。
+仍可检查输入、准备任务；不能在宿主机运行生成代码，也不能偷偷安装引擎。

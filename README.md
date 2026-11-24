@@ -14,7 +14,7 @@ The technical idea is simple: **AI should explore how to solve a problem, not on
 execute a workflow designed by a person.** Rules, scripts, ML, prompts, workflows
 and agents are alternatives. A small program is allowed to beat a complex agent.
 
-**v0.2.0 preview.** This is an agent skill with tested evidence/install/package
+**v0.3.0 preview.** This is an agent skill with tested evidence/install/package
 helpers, not a standalone autonomous engine, sandbox or model service. Task quality
 still depends on the agent, available resources and valid evaluation. Framework
 selection guidance is not a claim of implemented LangGraph/Dify integrations.
@@ -39,11 +39,17 @@ an honest forward-test summary, with quality review still required.
 Already have STS running locally? The packaged [headless bridge](docs/HEADLESS.md)
 lets your agent use its actual task/search/review/delivery APIs without opening a
 frontend. It is read-only by default and never creates a model budget or installs
-an engine. Full review/readiness commands target STS v0.14; v0.13 remains read-only.
+an engine. New paid operations require STS v0.16 price readiness; missing or expired
+reviews stop submission while free inspection and saved receipts remain available.
+The [price lifecycle guide](skills/solve2ship/references/pricing.md) explains explicit
+review without budget resets. Supported older read-only/review routes remain usable.
 The v0.2 install ZIP was checked outside both repositories against a real local
 STS v0.14 engine: Chinese status, four closed final-review cases and an accepted
 Rules service download with a matching SHA256. The bridge made no model calls,
 submitted no review votes and did not execute the downloaded service.
+The v0.3 ZIP was separately unpacked outside the repositories and checked against
+STS v0.16: its actual expired price review was reported and paid preflight refused.
+The verification allowed GET requests only; recorded usage and allowances were unchanged.
 
 ## Install
 
@@ -93,6 +99,7 @@ and failed/ambiguous paid operations are never automatically replayed.
 - [Skill workflow](skills/solve2ship/SKILL.md)
 - [Local container runtime setup](docs/RUNTIME.md) (Colima on macOS or Docker Engine on Linux)
 - [Headless STS bridge](docs/HEADLESS.md)
+- [Price readiness and review](skills/solve2ship/references/pricing.md)
 - [Resources and isolation](skills/solve2ship/references/execution.md)
 - [Approach selection](skills/solve2ship/references/adapters.md)
 - [Evaluation and durable evidence](skills/solve2ship/references/evaluation.md)
@@ -107,7 +114,7 @@ python3 -m unittest discover -s tests -v
 python3 scripts/package_skill.py
 ```
 
-The v0.2 suite passes 31 stdlib tests, including 20 local HTTP protocol tests for
+The v0.3 suite passes 37 stdlib tests, including 26 local HTTP protocol tests for
 the bridge. These exercise helpers and packaging. They do not establish task accuracy,
 general optimization gains or production security. Public/production hosting,
 framework/model downloads and external fees require separate authorization and real

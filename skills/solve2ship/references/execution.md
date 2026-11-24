@@ -8,6 +8,9 @@ matter. Keep authorized work moving without asking the user to approve routine e
 
 Before chargeable API use, identify provider/model, review current official prices,
 set a cumulative ceiling in the user's currency, and reserve conservative headroom.
+For an existing STS engine, read [price review and readiness](pricing.md). Credentials,
+an approved budget and a valid price review are distinct requirements. An expired
+review must not be renewed merely by moving its dates; preserve the original ledger.
 Include generation, evaluation, optimization and serving; use one persistent budget
 or explicit delegated allowances, never silently give each branch a fresh budget.
 Keep unknown charges reserved and stop affected work on uncertain submissions.

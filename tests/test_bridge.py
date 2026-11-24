@@ -1,6 +1,7 @@
 """Local HTTP protocol fixtures only; no provider, engine worker or paid calls."""
 
 from concurrent.futures import ThreadPoolExecutor
+import copy
 import hashlib
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import importlib.util
@@ -23,6 +24,9 @@ TASK, SEARCH, CANDIDATE = 'a' * 32, 'b' * 32, 'c' * 32
 class EngineFixture:
     def __init__(self):
         self.requests = []; self.model_available = True; self.model_configured = True; self.limit = 10; self.used = .2
+        self.pricing = {'ready': True, 'reason': None, 'active_version_id': '9' * 64,
+                        'snapshot': {'version_id': '9' * 64, 'valid_from': '2026-11-23T00:00:00Z',
+                                     'expires_at': '2026-11-30T00:00:00Z'}}
         self.mode = None; self.archive_changed = False; self.drop_start = False
         self.definition = {'title': 'Protocol fixture only', 'samples': [{'text': 'private fixture input'}],
                            'output_specification': 'Return a category.', 'budget': {'mode': 'inherit_work'}}
@@ -62,7 +66,8 @@ class EngineFixture:
                 elif self.path == '/api/budget': self.reply({'limit_cny': fixture.limit, 'committed_ceiling_cny': fixture.used})
                 elif self.path == '/api/model-status':
                     if not fixture.model_available: self.reply({'error': 'not_found'}, 404)
-                    else: self.reply({'configured': fixture.model_configured, 'api_key_configured': fixture.model_configured, 'api_key': 'unit-test-placeholder'})
+                    else: self.reply({'configured': fixture.model_configured, 'api_key_configured': fixture.model_configured,
+                                      'pricing': fixture.pricing, 'api_key': 'unit-test-placeholder'})
                 elif self.path == '/api/tasks': self.reply({'tasks': [fixture.task]})
                 elif self.path in ('/api/tasks/' + TASK, '/api/tasks/' + TASK + '/revisions/1'): self.reply(fixture.task)
                 elif self.path == '/api/searches': self.reply({'searches': [fixture.search]})
@@ -162,6 +167,88 @@ class BridgeTests(unittest.TestCase):
         self.fixture.model_available = self.fixture.model_configured = True; self.fixture.limit = 0; self.fixture.used = 0
         with self.assertRaisesRegex(bridge.BridgeError, 'existing_budget'): self.start()
         self.assertEqual(self.posts(), []); self.assertFalse(self.state.exists())
+
+    def test_status_exposes_model_bound_price_version_without_private_catalog_or_keys(self):
+        self.fixture.pricing['snapshot'].update(api_key='private-price-key', source_document='private official page copy')
+        facts = self.run_command()
+        self.assertEqual(facts['pricing'], {'ready': True, 'reason': None, 'active_version_id': '9' * 64,
+                                          'valid_from': '2026-11-23T00:00:00Z', 'expires_at': '2026-11-30T00:00:00Z'})
+        self.assertNotIn('private-price-key', bridge.encode(facts).decode())
+        self.assertNotIn('source_document', bridge.encode(facts).decode())
+        self.assertFalse(facts['connection_verified']); self.assertFalse(facts['paid_request_submitted'])
+        self.assertEqual(self.posts(), []); self.assertFalse(self.state.exists())
+
+    def test_old_or_malformed_price_readiness_never_authorizes_new_work(self):
+        ready = copy.deepcopy(self.fixture.pricing)
+        invalid = [None, {}, True, {'ready': 'true'}, {'ready': 1}, {'ready': True},
+                   {**ready, 'snapshot': None}, {**ready, 'active_version_id': 'invalid'},
+                   {**ready, 'snapshot': {**ready['snapshot'], 'version_id': '8' * 64}},
+                   {**ready, 'snapshot': {**ready['snapshot'], 'expires_at': None}},
+                   {**ready, 'snapshot': {**ready['snapshot'], 'expires_at': '2026-99-99T99:99:99Z'}},
+                   {**ready, 'snapshot': {**ready['snapshot'], 'expires_at': ready['snapshot']['valid_from']}},
+                   {**ready, 'reason': 'pricing_expired'}]
+        for pricing in invalid:
+            self.fixture.pricing = pricing
+            with self.subTest(pricing=pricing):
+                self.assertIsNot(self.run_command()['pricing']['ready'], True)
+                with self.assertRaisesRegex(bridge.BridgeError, 'pricing_status_'):
+                    self.start()
+        self.assertEqual(self.posts(), []); self.assertFalse(self.state.exists())
+
+    def test_all_paid_paths_refuse_missing_expired_mismatched_or_damaged_reviews_before_submission(self):
+        self.fixture.search['candidates'][0]['family'] = 'prompt.v1'
+        operations = [
+            ('start', '--task-id', TASK, '--revision', '1'),
+            ('evolve', '--search-id', SEARCH, '--candidate-id', CANDIDATE),
+            ('reactivate', '--search-id', SEARCH, '--candidate-id', CANDIDATE),
+            ('restore', '--search-id', SEARCH),
+            ('prepare-final', '--search-id', SEARCH, '--operator-review'),
+        ]
+        for reason in ('price_snapshot_requires_review', 'pricing_expired', 'pricing_endpoint_mismatch',
+                       'pricing_model_mismatch', 'pricing_not_yet_valid', 'pricing_version_hash_mismatch'):
+            self.fixture.pricing.update(ready=False, reason=reason)
+            for operation in operations:
+                with self.subTest(reason=reason, operation=operation[0]), self.assertRaisesRegex(bridge.BridgeError, reason):
+                    self.run_command(*operation, '--allow-paid', '--operation-id', 'not-submitted')
+        self.assertEqual(self.posts(), []); self.assertFalse(self.state.exists())
+        self.assertEqual((self.fixture.limit, self.fixture.used), (10, .2))
+
+    def test_success_receipt_and_free_operations_survive_expired_prices(self):
+        first = self.start()
+        self.fixture.pricing.update(ready=False, reason='pricing_expired')
+        requests = len(self.fixture.requests)
+        self.assertEqual(self.start()['result'], first['result'])
+        self.assertEqual(len(self.fixture.requests), requests)
+        final = self.run_command('prepare-final', '--search-id', SEARCH, '--operator-review', '--operation-id', 'free-final')
+        self.assertTrue(final['submitted'])
+        self.assertTrue(self.run_command('cancel', '--search-id', SEARCH, '--operation-id', 'cancel')['submitted'])
+        self.assertEqual(self.run_command('show', '--search-id', SEARCH)['id'], SEARCH)
+        self.assertFalse(self.run_command('download', '--search-id', SEARCH, '--output', str(self.root / 'accepted.zip'))['executed'])
+        self.assertEqual(len(self.posts('/api/searches')), 1)
+        self.assertEqual((self.fixture.limit, self.fixture.used), (10, .2))
+
+    def test_explicitly_repaired_price_status_allows_a_previously_unsubmitted_intent(self):
+        self.fixture.pricing.update(ready=False, reason='pricing_expired')
+        with self.assertRaisesRegex(bridge.BridgeError, 'pricing_expired'): self.start()
+        self.assertFalse(self.state.exists())
+        self.fixture.pricing.update(ready=True, reason=None)
+        self.fixture.pricing['active_version_id'] = self.fixture.pricing['snapshot']['version_id'] = '7' * 64
+        self.assertTrue(self.start()['submitted'])
+        self.assertEqual(len(self.posts('/api/searches')), 1)
+        self.assertEqual((self.fixture.limit, self.fixture.used), (10, .2))
+
+    def test_price_errors_are_explained_in_both_languages_without_secret_data(self):
+        self.fixture.pricing.update(ready=False, reason='pricing_expired')
+        for language, text in [('en-US', 'price review has expired'), ('zh-CN', '价格审核已过期')]:
+            output = io.StringIO()
+            args = ['--language', language, '--state-dir', str(self.state), 'start', '--task-id', TASK,
+                    '--revision', '1', '--operation-id', 'blocked', '--allow-paid']
+            with self.subTest(language=language), patch.object(bridge, 'Client', return_value=self.client), patch('sys.stdout', output):
+                self.assertEqual(bridge.main(args), 2)
+            result = bridge.decode(output.getvalue())
+            self.assertEqual(result['code'], 'pricing_expired'); self.assertIn(text, result['message'])
+            self.assertNotIn('unit-test-placeholder', output.getvalue())
+        self.assertEqual(self.posts(), [])
 
     def test_reviewed_definition_is_saved_without_starting_a_search_or_budget(self):
         path = self.task_file(); preview = self.run_command('preview', '--definition', str(path))

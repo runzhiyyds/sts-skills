@@ -20,8 +20,10 @@ The initial STS implementation reference is v0.12.0, commit
 `dfc52c17d88f1eb6247fa36a085aa09aa1914183`, at
 https://github.com/runzhiyyds/solve2ship . This skill can guide other local agents
 without installing that engine; its runtime acceptance and model budget are separate.
-The v0.2 optional bridge targets the STS v0.14 review/readiness protocol rather than
-expanding the older v0.12 framework scope. v0.13 compatibility is read-only.
+The v0.3 optional bridge targets the STS v0.16 model-bound price-readiness protocol
+for paid operations and v0.14 review/download routes. The v0.16 product reference is
+commit `a26998e` in the STS repository. Supported older read-only routes remain usable;
+missing price readiness cannot authorize new work. No framework source was adopted.
 
 CI uses the same pinned actions already reviewed in that STS snapshot:
 actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 (v4.2.2, MIT), and

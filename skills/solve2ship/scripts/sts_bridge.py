@@ -2,6 +2,7 @@
 
 import argparse
 from contextlib import contextmanager
+from datetime import datetime
 import hashlib
 from http.client import HTTPException
 import json
@@ -158,12 +159,49 @@ def number(value):
     return value
 
 
+def pricing_summary(model):
+    """Use the model-bound engine status, never an unbound budget price hint.
+
+    This client does not calculate rates or certify source reviews. The engine
+    rechecks its catalog at reservation; ready here is a read-time observation.
+    """
+    unavailable = {'ready': None, 'reason': 'pricing_status_unavailable',
+                   'active_version_id': None, 'valid_from': None, 'expires_at': None}
+    pricing = model.get('pricing') if type(model) is dict else None
+    if type(pricing) is not dict or type(pricing.get('ready')) is not bool:
+        return unavailable
+    snapshot = pricing.get('snapshot')
+    snapshot = snapshot if type(snapshot) is dict else {}
+    version = pricing.get('active_version_id')
+    version = version if type(version) is str and re.fullmatch('[0-9a-f]{64}', version) else None
+    dates = {}
+    for name in ('valid_from', 'expires_at'):
+        value = snapshot.get(name)
+        dates[name] = value if type(value) is str and re.fullmatch(r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z', value) else None
+        if dates[name]:
+            try:
+                datetime.strptime(dates[name], '%Y-%m-%dT%H:%M:%SZ')
+            except ValueError:
+                dates[name] = None
+    if pricing['ready']:
+        if (not version or snapshot.get('version_id') != version or not all(dates.values())
+                or dates['valid_from'] >= dates['expires_at'] or pricing.get('reason') is not None):
+            return {**unavailable, 'ready': False, 'reason': 'pricing_status_invalid'}
+        reason = None
+    else:
+        reason = pricing.get('reason')
+        if type(reason) is not str or not re.fullmatch(r'(?:pricing_[a-z_]{1,64}|price_snapshot_requires_review)', reason):
+            reason = 'pricing_review_required'
+    return {'ready': pricing['ready'], 'reason': reason, 'active_version_id': version, **dates}
+
+
 def status(client):
     health = client.get('/api/health')
     budget = client.get('/api/budget')
     if type(health) is not dict or health.get('status') != 'ok' or type(budget) is not dict:
         raise BridgeError('invalid_engine_response')
     limit = number(budget.get('limit_cny', 0)); used = number(budget.get('committed_ceiling_cny', 0))
+    model = None
     try:
         model = client.get('/api/model-status')
         configured = model.get('configured') is True and model.get('api_key_configured') is True
@@ -175,6 +213,7 @@ def status(client):
             'candidate_execution_enabled': health.get('candidate_execution_enabled') is True,
             'isolated_code_runtime_available': health.get('arbitrary_code_execution_enabled') is True,
             'model_configured': configured, 'connection_verified': False,
+            'pricing': pricing_summary(model),
             'budget': {'currency': 'CNY', 'authorized_ceiling': limit, 'committed_ceiling': used,
                        'remaining_ceiling': max(0, limit - used), 'provider_bill_verified': False},
             'paid_request_submitted': False}
@@ -188,6 +227,8 @@ def preflight_paid(client):
         raise BridgeError('model_configuration_required' if facts['model_configured'] is False else 'model_status_unavailable')
     if facts['budget']['remaining_ceiling'] <= 0:
         raise BridgeError('existing_budget_required')
+    if facts['pricing']['ready'] is not True:
+        raise BridgeError(facts['pricing']['reason'])
     return facts
 
 
@@ -546,6 +587,11 @@ ERROR_MESSAGES = {
         'model_configuration_required': 'A model connection is missing. Ask your agent to configure it in a hidden terminal prompt; never send the key here.',
         'model_status_unavailable': 'This engine cannot report model readiness safely. Use read-only commands or update it before starting exploration.',
         'existing_budget_required': 'No approved model budget remains. This helper will not create or increase a budget.',
+        'pricing_status_unavailable': 'This engine does not report model-bound price readiness. Read-only work remains available; use STS v0.16 or later for new paid operations.',
+        'pricing_status_invalid': 'The engine returned inconsistent price-review evidence. No paid operation was submitted. Inspect the engine price status before continuing.',
+        'pricing_review_required': 'The model price review is missing, invalid or mismatched. Ask your agent to inspect the engine status and help review current official prices. No automatic renewal or budget reset is performed.',
+        'pricing_expired': 'The model price review has expired. New paid work is paused until current official prices are reviewed and explicitly imported. Your existing budget and usage remain recorded.',
+        'price_snapshot_requires_review': 'No usable price review is configured. Review current official prices and explicitly import a version before new paid work; this helper does not grant a budget.',
         'operation_requires_review': 'An earlier operation is unresolved or refused. Inspect its saved receipt and engine state; do not submit it with a new ID.',
         'reviewed_task_changed': 'The task differs from the version reviewed. Preview the current file and review the change first.',
         'explicit_operator_answers_required': 'Only your explicit review answers and attestation can be submitted. This helper does not create approvals.',
@@ -558,6 +604,11 @@ ERROR_MESSAGES = {
         'model_configuration_required': '尚未配置模型连接。请让 Agent 在终端隐藏输入密钥，不要在聊天中发送。',
         'model_status_unavailable': '当前引擎还不能安全报告模型就绪状态。可继续只读查看，更新引擎后再启动探索。',
         'existing_budget_required': '已授权的模型预算不足。工具不会自行创建或提高额度。',
+        'pricing_status_unavailable': '当前引擎不能报告与模型绑定的价格就绪状态。可继续只读操作；新的付费操作需要 STS v0.16 或更高版本。',
+        'pricing_status_invalid': '引擎返回的价格审核证据不一致，没有提交付费操作。请先检查引擎价格状态。',
+        'pricing_review_required': '模型价格审核缺失、无效或不匹配。请让 Agent 检查引擎状态并协助复核当前官方价格。工具不会自动续期或重置预算。',
+        'pricing_expired': '模型价格审核已过期。复核当前官方价格并明确导入后，才能启动新的付费工作。已有预算和用量记录保持不变。',
+        'price_snapshot_requires_review': '尚未配置可用的价格审核。新的付费工作前需复核当前官方价格并明确导入版本；工具不会授予预算。',
         'operation_requires_review': '之前的操作仍待核对或已被拒绝。请查看保存回执和引擎状态，不要换新编号重复提交。',
         'reviewed_task_changed': '任务已不同于审阅过的版本。请重新预览文件并确认变更。',
         'explicit_operator_answers_required': '只能提交你明确给出的判断和确认。工具不会代你生成认可意见。',
@@ -607,7 +658,8 @@ def main(argv=None):
         return 0
     except (BridgeError, OSError, ValueError, TypeError, KeyError, AttributeError, RecursionError) as error:
         code = error.code if isinstance(error, BridgeError) else 'local_input_or_state_invalid'
-        print(json.dumps({'status': 'error', 'code': code, 'message': ERROR_MESSAGES[args.language].get(code, messages['error'])}, ensure_ascii=False))
+        fallback = ERROR_MESSAGES[args.language]['pricing_review_required'] if code.startswith('pricing_') else messages['error']
+        print(json.dumps({'status': 'error', 'code': code, 'message': ERROR_MESSAGES[args.language].get(code, fallback)}, ensure_ascii=False))
         return 2
 
 

@@ -9,9 +9,9 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[1]
 SKILL = ROOT / 'skills/solve2ship'
 FILES = ('SKILL.md', 'LICENSE', 'NOTICE', 'INSTALL.md', 'agents/openai.yaml', 'references/execution.md',
-         'references/adapters.md', 'references/evaluation.md', 'references/delivery.md', 'references/sts-engine.md',
+         'references/adapters.md', 'references/evaluation.md', 'references/delivery.md', 'references/sts-engine.md', 'references/pricing.md',
          'scripts/evidence.py', 'scripts/sts_bridge.py')
-VERSION = '0.2.0'
+VERSION = '0.3.0'
 
 
 def build(destination):

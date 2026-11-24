@@ -36,8 +36,13 @@ or turn its own model score into human truth. Final review closes one frozen gat
 exposed final inputs cannot be used for further optimization. A review rejection or
 “not enough evidence” is useful output, not a reason to invent an accepted service.
 
-The bridge targets the STS v0.14 review/readiness API. Older v0.13 engines can be
-inspected read-only; missing readiness means starts fail closed. The client accepts
+New paid operations require the STS v0.16 model-bound pricing API. Status separately
+reports model configuration, price readiness/version/UTC expiry and budget; no
+provider call is made. Missing, expired, future, malformed or mismatched price reviews
+block paid submission. The [price review guide](../skills/solve2ship/references/pricing.md)
+explains the explicit local update; the helper never renews prices or resets usage.
+Read-only access remains available for supported older routes; review/download
+operations use the v0.14 API. The client accepts
 only HTTP loopback, ignores proxy settings, rejects redirects and keeps data local
 to the existing engine. That engine may subsequently send authorized task data to
 a configured model provider during exploration. This development API is not public
@@ -57,4 +62,8 @@ hosting or production authentication.
 状态重试。Agent 只能记录你真实给出的判断，不能代你填写“认可”或声称已完成质量验收。
 成功回执在预算耗尽后仍可恢复，不会重新提交；明确进入人工复核的已知确定性方案无需
 模型额度。下载还会检查最终质量门禁已经通过，不能只有源码包校验和。
-本机开发接口也不等于公网部署。当前完整桥接需要 STS v0.14；v0.13 可只读查看。
+本机开发接口也不等于公网部署。新的付费操作需要 STS v0.16 的模型绑定价格状态。
+状态会分别展示模型配置、价格就绪/版本/UTC 有效期和预算，不调用模型。价格缺失、
+过期、尚未生效、损坏或不匹配时，不提交付费操作。工具不会自动续期、修改历史费用
+或清空预算。可让 Agent 按[价格复核说明](../skills/solve2ship/references/pricing.md)准备
+本机更新；旧版支持的只读接口仍可使用，复核与下载使用 v0.14 接口。
